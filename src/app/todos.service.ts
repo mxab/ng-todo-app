@@ -14,4 +14,14 @@ export class TodosService {
   findAll(): Observable<Todo[]> {
     return this.http.get<Todo[]>(this.TODOS_ENDPOINT);
   }
+
+  done(id: number): Observable<Todo> {
+    return this.http.patch<Todo>(`${this.TODOS_ENDPOINT}/${id}`, {
+      done: true,
+    });
+  }
+
+  remove(id: number): Observable<Todo> {
+    return this.http.delete<Todo>(`${this.TODOS_ENDPOINT}/${id}`);
+  }
 }

@@ -6,10 +6,27 @@
       <ul class="list-group" *ngIf="todosState.todos.length">
         <li
           *ngFor="let todo of todosState.todos"
-          class="list-group-item todo"
+          class="list-group-item todo d-flex justify-content-between align-items-center"
           [ngClass]="{ done: todo.done }"
         >
           <span class="title">{{ todo.title }}</span>
+          <div class="d-flex flex-row">
+            <button
+              type="button"
+              class="btn btn-primary btn-sm mr-2"
+              *ngIf="!todo.done"
+              (click)="done(todo)"
+            >
+              Done
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm"
+              (click)="remove(todo)"
+            >
+              X
+            </button>
+          </div>
         </li>
       </ul>
       <div class="alert alert-danger" role="alert" *ngIf="todosState.error">
