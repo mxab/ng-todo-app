@@ -1,5 +1,17 @@
 <div class="row justify-content-md-center">
   <div class="col-md-5">
     <h1>Todos</h1>
+
+    <div *ngIf="todos$ | async as todos">
+      <ul class="list-group" *ngIf="todos.length">
+        <li
+          *ngFor="let todo of todos"
+          class="list-group-item todo"
+          [ngClass]="{ done: todo.done }"
+        >
+          <span class="title">{{ todo.title }}</span>
+        </li>
+      </ul>
+    </div>
   </div>
 </div>
