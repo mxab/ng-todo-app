@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TodosService } from '../todos.service';
-import { catchError, map, switchMap } from 'rxjs/operators';
-import { BehaviorSubject, of } from 'rxjs';
+import { catchError, map, startWith, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { Todo } from '../todos';
 
 @Component({
@@ -12,18 +12,29 @@ import { Todo } from '../todos';
 export class TodosComponent implements OnInit {
   private load$ = new BehaviorSubject<void>(undefined);
 
-  todos$ = this.todosService.findAll().pipe(
+  todos$: Observable<{
+    todos: Todo[];
+    error?: string;
+    loading: boolean;
+  }> = this.todosService.findAll().pipe(
     map((result) => {
       return {
         todos: result,
         error: null,
+        loading: false,
       };
     }),
     catchError((e: Error) => {
       return of({
         todos: [],
         error: e.message,
+        loading: false,
       });
+    }),
+    startWith({
+      todos: [],
+      error: null,
+      loading: true,
     })
   );
 
