@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TodosService } from '../todos.service';
-import { catchError, map } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, of } from 'rxjs';
 import { Todo } from '../todos';
 
 @Component({
@@ -10,7 +10,9 @@ import { Todo } from '../todos';
   styleUrls: ['./todos.component.css'],
 })
 export class TodosComponent implements OnInit {
-  todosState$ = this.todosService.findAll().pipe(
+  private load$ = new BehaviorSubject<void>(undefined);
+
+  todos$ = this.todosService.findAll().pipe(
     map((result) => {
       return {
         todos: result,
@@ -25,6 +27,12 @@ export class TodosComponent implements OnInit {
     })
   );
 
+  todosState$ = this.load$.pipe(
+    switchMap(() => {
+      return this.todos$;
+    })
+  );
+
   constructor(private readonly todosService: TodosService) {}
 
   ngOnInit(): void {}
@@ -34,7 +42,7 @@ export class TodosComponent implements OnInit {
       .done(todo.id)
       .toPromise()
       .then(() => {
-        console.log('completed', todo);
+        this.load$.next();
       });
   }
 
@@ -43,7 +51,7 @@ export class TodosComponent implements OnInit {
       .remove(todo.id)
       .toPromise()
       .then(() => {
-        console.log('removed', todo);
+        this.load$.next();
       });
   }
 }
