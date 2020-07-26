@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Status, TodoFilter, TodosService } from '../todos.service';
-import { catchError, map, startWith, switchMap } from 'rxjs/operators';
+import { catchError, map, startWith, switchMap, tap } from 'rxjs/operators';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import { Todo } from '../todos';
 import { FormBuilder, Validators } from '@angular/forms';
@@ -29,6 +29,9 @@ export class TodosComponent implements OnInit {
           filter.status = status;
         }
         return filter;
+      }),
+      tap((filter) => {
+        this.filterFormGroup.reset(filter);
       })
     ),
     this.load$,
