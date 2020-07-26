@@ -37,6 +37,29 @@
         [ngTemplateOutlet]="loading"
         *ngIf="todosState.loading"
       ></ng-container>
+
+      <hr />
+      <div>
+        <form [formGroup]="newTodoFormGroup" (ngSubmit)="create()">
+          <div class="form-row align-items-center">
+            <div class="col my-1">
+              <label class="sr-only" for="title">Title</label>
+              <div>
+                <input
+                  formControlName="title"
+                  type="text"
+                  class="form-control mb-2 mr-sm-2"
+                  id="title"
+                  placeholder="Repair bike"
+                />
+              </div>
+            </div>
+            <div class="col-auto my-1">
+              <button type="submit" class="btn btn-primary mb-2">Submit</button>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </div>

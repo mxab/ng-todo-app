@@ -3,6 +3,7 @@ import { TodosService } from '../todos.service';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { Todo } from '../todos';
+import { FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-todos',
@@ -44,7 +45,14 @@ export class TodosComponent implements OnInit {
     })
   );
 
-  constructor(private readonly todosService: TodosService) {}
+  newTodoFormGroup = this.fb.group({
+    title: this.fb.control('', Validators.required),
+  });
+
+  constructor(
+    private readonly todosService: TodosService,
+    private readonly fb: FormBuilder
+  ) {}
 
   ngOnInit(): void {}
 
@@ -62,6 +70,20 @@ export class TodosComponent implements OnInit {
       .remove(todo.id)
       .toPromise()
       .then(() => {
+        this.load$.next();
+      });
+  }
+
+  create(): void {
+    if (this.newTodoFormGroup.invalid) {
+      return;
+    }
+    const newTodo = this.newTodoFormGroup.value;
+    this.todosService
+      .create(newTodo)
+      .toPromise()
+      .then(() => {
+        this.newTodoFormGroup.reset();
         this.load$.next();
       });
   }

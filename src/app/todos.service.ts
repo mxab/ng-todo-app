@@ -24,4 +24,11 @@ export class TodosService {
   remove(id: number): Observable<Todo> {
     return this.http.delete<Todo>(`${this.TODOS_ENDPOINT}/${id}`);
   }
+
+  create(data: { title: string }): Observable<Todo> {
+    return this.http.post<Todo>(this.TODOS_ENDPOINT, {
+      title: data.title,
+      done: false,
+    });
+  }
 }
