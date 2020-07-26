@@ -4,6 +4,7 @@ import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import { Todo } from '../todos';
 import { FormBuilder, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-todos',
@@ -18,8 +19,17 @@ export class TodosComponent implements OnInit {
   });
 
   todosState$ = combineLatest([
-    this.filterFormGroup.valueChanges.pipe(
-      startWith(this.filterFormGroup.value as TodoFilter)
+    this.route.paramMap.pipe(
+      map((paramMap) => {
+        const filter: TodoFilter = {
+          status: Status.all,
+        };
+        const status = paramMap.get('status') as Status;
+        if (status) {
+          filter.status = status;
+        }
+        return filter;
+      })
     ),
     this.load$,
   ]).pipe(
@@ -34,7 +44,9 @@ export class TodosComponent implements OnInit {
 
   constructor(
     private readonly todosService: TodosService,
-    private readonly fb: FormBuilder
+    private readonly fb: FormBuilder,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {}
@@ -99,5 +111,14 @@ export class TodosComponent implements OnInit {
         loading: true,
       })
     );
+  }
+
+  applyFilterToRoute(): void {
+    const filter = this.filterFormGroup.value as TodoFilter;
+    const params: { status?: string } = {};
+    if (filter.status) {
+      params.status = filter.status;
+    }
+    this.router.navigate([params]);
   }
 }
