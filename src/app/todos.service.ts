@@ -1,7 +1,17 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Todo } from './todos';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
+
+export enum Status {
+  all = '',
+  done = 'done',
+  open = 'open',
+}
+
+export interface TodoFilter {
+  status: Status;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -11,8 +21,15 @@ export class TodosService {
 
   constructor(private readonly http: HttpClient) {}
 
-  findAll(): Observable<Todo[]> {
-    return this.http.get<Todo[]>(this.TODOS_ENDPOINT);
+  findAll(filter: TodoFilter): Observable<Todo[]> {
+    let params = new HttpParams();
+
+    if (filter.status === Status.done) {
+      params = params.set('done', 'true');
+    } else if (filter.status === Status.open) {
+      params = params.set('done', 'false');
+    }
+    return this.http.get<Todo[]>(this.TODOS_ENDPOINT, { params });
   }
 
   done(id: number): Observable<Todo> {

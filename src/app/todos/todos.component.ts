@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { TodosService } from '../todos.service';
+import { Status, TodoFilter, TodosService } from '../todos.service';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import { Todo } from '../todos';
 import { FormBuilder, Validators } from '@angular/forms';
 
@@ -13,35 +13,18 @@ import { FormBuilder, Validators } from '@angular/forms';
 export class TodosComponent implements OnInit {
   private load$ = new BehaviorSubject<void>(undefined);
 
-  todos$: Observable<{
-    todos: Todo[];
-    error?: string;
-    loading: boolean;
-  }> = this.todosService.findAll().pipe(
-    map((result) => {
-      return {
-        todos: result,
-        error: null,
-        loading: false,
-      };
-    }),
-    catchError((e: Error) => {
-      return of({
-        todos: [],
-        error: e.message,
-        loading: false,
-      });
-    }),
-    startWith({
-      todos: [],
-      error: null,
-      loading: true,
-    })
-  );
+  filterFormGroup = this.fb.group({
+    status: this.fb.control(Status.all),
+  });
 
-  todosState$ = this.load$.pipe(
-    switchMap(() => {
-      return this.todos$;
+  todosState$ = combineLatest([
+    this.filterFormGroup.valueChanges.pipe(
+      startWith(this.filterFormGroup.value as TodoFilter)
+    ),
+    this.load$,
+  ]).pipe(
+    switchMap(([filter]: [TodoFilter, void]) => {
+      return this.loadTodos(filter);
     })
   );
 
@@ -86,5 +69,35 @@ export class TodosComponent implements OnInit {
         this.newTodoFormGroup.reset();
         this.load$.next();
       });
+  }
+
+  private loadTodos(
+    filter: TodoFilter
+  ): Observable<{
+    todos: Todo[];
+    error?: string;
+    loading: boolean;
+  }> {
+    return this.todosService.findAll(filter).pipe(
+      map((result) => {
+        return {
+          todos: result,
+          error: null,
+          loading: false,
+        };
+      }),
+      catchError((e: Error) => {
+        return of({
+          todos: [],
+          error: e.message,
+          loading: false,
+        });
+      }),
+      startWith({
+        todos: [],
+        error: null,
+        loading: true,
+      })
+    );
   }
 }

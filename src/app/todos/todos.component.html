@@ -1,7 +1,21 @@
 <div class="row justify-content-md-center">
   <div class="col-md-5">
     <h1>Todos</h1>
-
+    <div>
+      <form [formGroup]="filterFormGroup" class="form-inline">
+        <label class="sr-only" for="status">Status</label>
+        <select
+          class="form-control form-control-sm"
+          id="status"
+          formControlName="status"
+        >
+          <option value="">All</option>
+          <option value="done">Done</option>
+          <option value="open">Open</option>
+        </select>
+      </form>
+    </div>
+    <hr />
     <div *ngIf="todosState$ | async as todosState">
       <ul class="list-group" *ngIf="todosState.todos.length">
         <li
